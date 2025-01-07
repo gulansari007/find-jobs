@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationController extends GetxController {
   final locationController = TextEditingController();
@@ -42,7 +43,7 @@ class LocationController extends GetxController {
   final RxString searchQuery = ''.obs;
   final RxBool isLoadingLocation = false.obs;
   final RxString selectedCity = ''.obs;
-  final RxBool isNextButtonEnabled = false.obs; // Reactive button state
+  final RxBool isNextButtonEnabled = false.obs;
 
   @override
   void onInit() {
@@ -59,7 +60,10 @@ class LocationController extends GetxController {
     });
 
     // Reactively update button state when selectedCity changes
-    ever(selectedCity, (_) => _updateNextButtonState());
+    ever(selectedCity, (_) => _onCityChanged());
+
+    // Load saved location on initialization
+    _loadSavedLocation();
   }
 
   void _filterCities() {
@@ -75,6 +79,11 @@ class LocationController extends GetxController {
 
   void _updateNextButtonState() {
     isNextButtonEnabled.value = selectedCity.value.isNotEmpty;
+  }
+
+  Future<void> _onCityChanged() async {
+    _updateNextButtonState();
+    await _saveLocation(selectedCity.value);
   }
 
   Future<void> getCurrentLocation() async {
@@ -128,5 +137,19 @@ class LocationController extends GetxController {
     locationController.text = city;
     selectedCity.value = city;
     _updateNextButtonState(); // Ensure button updates immediately
+  }
+
+  Future<void> _saveLocation(String location) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('selected_city', location);
+  }
+
+  Future<void> _loadSavedLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedCity = prefs.getString('selected_city');
+    if (savedCity != null && savedCity.isNotEmpty) {
+      locationController.text = savedCity;
+      selectedCity.value = savedCity;
+    }
   }
 }

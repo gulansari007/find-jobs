@@ -1,6 +1,7 @@
 import 'package:findjobs/screens/skills_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ExperienceController extends GetxController {
   final RxBool hasExperience = RxBool(false);
@@ -13,14 +14,17 @@ class ExperienceController extends GetxController {
   final endDateController = TextEditingController();
   final responsibilitiesController = TextEditingController();
 
-  var jobRoleController = TextEditingController();
-  var yearsOfExperienceController = TextEditingController();
-  var salaryController = TextEditingController();
+  final jobRoleController = TextEditingController();
+  final yearsOfExperienceController = TextEditingController();
+  final salaryController = TextEditingController();
 
-  // void setExperience(bool value) {
-  //   hasExperience.value = value;
-  //   isExperienceSelected.value = true;
-  // }
+  final RxBool isButtonEnabled = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadExperienceDetails(); // Load saved details when the controller initializes
+  }
 
   bool validateExperienceDetails() {
     if (hasExperience.value) {
@@ -40,36 +44,40 @@ class ExperienceController extends GetxController {
     return true;
   }
 
-  void saveExperienceDetails() {
+  void saveExperienceDetails() async {
     if (validateExperienceDetails()) {
-      // TODO: Implement actual saving logic
-      print('Saving Experience Details:');
-      print('Has Experience: ${hasExperience.value}');
-      if (hasExperience.value) {
-        print('Company: ${companyController.text}');
-        print('Position: ${positionController.text}');
-        print('Start Date: ${startDateController.text}');
-        print('End Date: ${endDateController.text}');
-        print('Responsibilities: ${responsibilitiesController.text}');
-      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('hasExperience', hasExperience.value);
+      await prefs.setString('company', companyController.text);
+      await prefs.setString('position', positionController.text);
+      await prefs.setString('startDate', startDateController.text);
+      await prefs.setString('endDate', endDateController.text);
+      await prefs.setString(
+          'responsibilities', responsibilitiesController.text);
+      await prefs.setString('jobRole', jobRoleController.text);
+      await prefs.setString(
+          'yearsOfExperience', yearsOfExperienceController.text);
+      await prefs.setString('salary', salaryController.text);
 
-      // Navigate to next screen
+      Get.snackbar('Success', 'Experience details saved successfully');
       Get.to(const SkillsScreen());
     }
   }
 
-  @override
-  void onClose() {
-    // Dispose controllers
-    companyController.dispose();
-    positionController.dispose();
-    startDateController.dispose();
-    endDateController.dispose();
-    responsibilitiesController.dispose();
-    super.onClose();
+  void loadExperienceDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    hasExperience.value = prefs.getBool('hasExperience') ?? false;
+    companyController.text = prefs.getString('company') ?? '';
+    positionController.text = prefs.getString('position') ?? '';
+    startDateController.text = prefs.getString('startDate') ?? '';
+    endDateController.text = prefs.getString('endDate') ?? '';
+    responsibilitiesController.text = prefs.getString('responsibilities') ?? '';
+    jobRoleController.text = prefs.getString('jobRole') ?? '';
+    yearsOfExperienceController.text =
+        prefs.getString('yearsOfExperience') ?? '';
+    salaryController.text = prefs.getString('salary') ?? '';
+    updateButtonState();
   }
-
-  RxBool isButtonEnabled = false.obs;
 
   void clearFields() {
     companyController.clear();
@@ -108,5 +116,19 @@ class ExperienceController extends GetxController {
       // If "Yes" is selected, validate fields
       updateButtonState();
     }
+  }
+
+  @override
+  void onClose() {
+    // Dispose controllers
+    companyController.dispose();
+    positionController.dispose();
+    startDateController.dispose();
+    endDateController.dispose();
+    responsibilitiesController.dispose();
+    jobRoleController.dispose();
+    yearsOfExperienceController.dispose();
+    salaryController.dispose();
+    super.onClose();
   }
 }

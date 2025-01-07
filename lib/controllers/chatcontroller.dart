@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:findjobs/screens/chat.dart';
-import 'package:findjobs/screens/chat_login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -32,7 +31,7 @@ class ChatController extends GetxController {
 
   void logout() async {
     await auth.signOut();
-    Get.off(() => LoginScreen());
+    Get.off(() => ());
   }
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;

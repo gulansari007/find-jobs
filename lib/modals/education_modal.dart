@@ -2,6 +2,8 @@ class EducationLevel {
   final String id;
   final String name;
 
+  static var values;
+
   EducationLevel({required this.id, required this.name});
 
   static List<EducationLevel> get levels => [

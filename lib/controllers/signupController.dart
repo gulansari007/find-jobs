@@ -1,10 +1,12 @@
 import 'package:findjobs/screens/basicdetail_screen.dart';
 import 'package:findjobs/screens/bottombar_screen.dart';
 import 'package:findjobs/screens/home_screen.dart';
+import 'package:findjobs/screens/otp_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupController extends GetxController {
   final TextEditingController phonecontroller = TextEditingController();
@@ -72,7 +74,7 @@ class SignupController extends GetxController {
     } catch (e) {
       errorMessage.value = 'Failed to verify OTP';
     }
-    Get.off(BasicDetailScreen());
+    Get.off(const BasicDetailScreen());
   }
 
   Rx<User?> firebaseUser = Rx<User?>(null);
@@ -86,6 +88,7 @@ class SignupController extends GetxController {
   }
 
   // Register user with email and password
+
   Future<void> registerWithEmailAndPassword(
       String email, String password) async {
     try {
@@ -100,20 +103,27 @@ class SignupController extends GetxController {
     }
   }
 
-  // Login user with email and password
   Future<void> loginWithEmailAndPassword(String email, String password) async {
     try {
       isLoading.value = true;
-      // Sign in with email and password
       await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      // Save login status
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+
       Get.snackbar('Success', 'Logged in successfully!');
+      Get.off(const BasicDetailScreen());
     } catch (e) {
-      Get.snackbar('Error', e.toString());
+      Get.snackbar('Login failed', 'Please enter correct email or password');
     } finally {
       isLoading.value = false;
     }
-    // Navigate to the next screen
-    Get.off(const BasicDetailScreen());
+  }
+
+  Future<bool> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false;
   }
 
   // Google Login
@@ -171,13 +181,18 @@ class SignupController extends GetxController {
     }
   }
 
-  // Logout user
+  // // Logout user
+  // Future<void> logout() async {
+  //   try {
+  //     await _auth.signOut();
+  //     Get.snackbar('Success', 'Logged out successfully!');
+  //   } catch (e) {
+  //     Get.snackbar('Error', e.toString());
+  //   }
+  // }
   Future<void> logout() async {
-    try {
-      await _auth.signOut();
-      Get.snackbar('Success', 'Logged out successfully!');
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    Get.offAll(const OtpScreen());
   }
 }

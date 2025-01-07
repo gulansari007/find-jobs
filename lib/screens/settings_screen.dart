@@ -17,7 +17,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+         backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Get.back(),
+        ),
         title: const Text(
           'Settings',
         ),
@@ -192,6 +198,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => Get.toNamed('/terms'),
                 ),
               ],
+            ),
+
+            _buildListTile(
+              title: 'Logout',
+              icon: Icons.logout_outlined,
+              onTap: () => Get.toNamed('/terms'),
             ),
             const SizedBox(height: 32),
           ],

@@ -1,4 +1,5 @@
 import 'package:findjobs/controllers/signupController.dart';
+import 'package:findjobs/screens/forget_pass_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -145,7 +146,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () {
-                            // Add forgot password functionality
+                            Get.to(const ForgetPassScreen());
                           },
                           child: Text(
                             'Forgot Password?',

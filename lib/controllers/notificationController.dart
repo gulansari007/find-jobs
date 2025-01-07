@@ -2,6 +2,8 @@ import 'package:findjobs/modals/notifications_modal.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class NotificationController extends GetxController {
   var notificationTitle = ''.obs;
@@ -14,10 +16,10 @@ class NotificationController extends GetxController {
   void onInit() {
     super.onInit();
     initializeFirebaseMessaging();
+    loadNotifications();
   }
 
   Future<void> initializeFirebaseMessaging() async {
-    // Request permission for notifications
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
@@ -30,27 +32,24 @@ class NotificationController extends GetxController {
       print('User declined or hasn\'t accepted permission');
     }
 
-    // Retrieve FCM token
     _firebaseMessaging.getToken().then((token) {
       fcmToken.value = token ?? '';
       print("FCM Token: $token");
     });
 
-    // Handle foreground notifications
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final notification = JobNotification(
         id: DateTime.now().millisecondsSinceEpoch,
         title: message.notification?.title ?? 'No Title',
         message: message.notification?.body ?? 'No Body',
         timestamp: DateTime.now(),
-        type: NotificationType.systemUpdate, // Assign a default type
-        isRead: false, // Unread by default
+        type: NotificationType.systemUpdate,
+        isRead: false,
       );
       addNotification(notification);
       print("Message received: ${message.notification?.title}");
     });
 
-    // Handle background notifications
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       notificationTitle.value = message.notification?.title ?? '';
       notificationBody.value = message.notification?.body ?? '';
@@ -58,59 +57,72 @@ class NotificationController extends GetxController {
     });
   }
 
-  // Observable list of notifications
   final RxList<JobNotification> _notifications = RxList<JobNotification>();
 
-  // Getters
   List<JobNotification> get notifications => _notifications;
 
-  // Computed property for unread count
   int get unreadCount => _notifications.where((n) => !n.isRead).length;
 
-  // Mark a notification as read
   void markAsRead(int id) {
     final index = _notifications.indexWhere((n) => n.id == id);
     if (index != -1) {
       _notifications[index] = _notifications[index].copyWith(isRead: true);
+      saveNotifications();
     }
   }
 
-  // Delete a notification
   void deleteNotification(int id) {
     _notifications.removeWhere((n) => n.id == id);
+    saveNotifications();
   }
 
-  // Open a notification (e.g., navigate to details)
   void openNotification(int id) {
     final notification = _notifications.firstWhere(
       (n) => n.id == id,
       orElse: () => JobNotification(
-        id: -1, // Fallback ID for non-existent notifications
+        id: -1,
         title: 'Notification Not Found',
         message: 'This notification does not exist.',
         timestamp: DateTime.now(),
-        type: NotificationType.systemUpdate, // Default type for fallback
+        type: NotificationType.systemUpdate,
         isRead: true,
       ),
     );
 
-    // Check if the fallback notification was used
     if (notification.id != -1) {
       markAsRead(id);
-      // Add your navigation or opening logic here
       print("Opened notification: ${notification.title}");
     } else {
       print("Notification with id $id not found.");
     }
   }
 
-  // Add a new notification (for testing or receiving a push)
   void addNotification(JobNotification notification) {
     _notifications.add(notification);
+    saveNotifications();
+  }
+
+  Future<void> saveNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final notificationsJson = _notifications.map((n) => n.toJson()).toList();
+    await prefs.setString('notifications', jsonEncode(notificationsJson));
+  }
+
+  Future<void> loadNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final notificationsString = prefs.getString('notifications');
+
+    if (notificationsString != null) {
+      final List<dynamic> notificationsJson = jsonDecode(notificationsString);
+      _notifications.addAll(
+        notificationsJson
+            .map((json) => JobNotification.fromJson(json))
+            .toList(),
+      );
+    }
   }
 }
 
-// JobNotification model
 class JobNotification {
   final int id;
   final String title;
@@ -132,10 +144,7 @@ class JobNotification {
     this.companyName,
   });
 
-  // Format time for display
-  String get formattedTime {
-    return DateFormat('hh:mm a').format(timestamp);
-  }
+  String get formattedTime => DateFormat('hh:mm a').format(timestamp);
 
   JobNotification copyWith({
     int? id,
@@ -158,9 +167,36 @@ class JobNotification {
       companyName: companyName ?? this.companyName,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'message': message,
+      'timestamp': timestamp.toIso8601String(),
+      'type': type.toString().split('.').last,
+      'isRead': isRead,
+      'jobTitle': jobTitle,
+      'companyName': companyName,
+    };
+  }
+
+  static JobNotification fromJson(Map<String, dynamic> json) {
+    return JobNotification(
+      id: json['id'],
+      title: json['title'],
+      message: json['message'],
+      timestamp: DateTime.parse(json['timestamp']),
+      type: NotificationType.values.firstWhere(
+        (e) => e.toString().split('.').last == json['type'],
+      ),
+      isRead: json['isRead'],
+      jobTitle: json['jobTitle'],
+      companyName: json['companyName'],
+    );
+  }
 }
 
-// NotificationType enum
 enum NotificationType {
   applicationStatus,
   interview,

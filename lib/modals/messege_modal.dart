@@ -30,4 +30,8 @@ class Message {
     this.unread = false,
     this.replies = const [],
   });
+
+  static fromJson(data) {}
+
+  static void fromMap(Map<String, dynamic> data) {}
 }

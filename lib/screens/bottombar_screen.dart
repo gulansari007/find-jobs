@@ -4,6 +4,7 @@ import 'package:findjobs/screens/jobs_screen.dart';
 import 'package:findjobs/screens/messeges_screen.dart';
 import 'package:findjobs/screens/notifications_screen.dart';
 import 'package:findjobs/screens/profile_screen.dart';
+import 'package:findjobs/screens/video_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -22,9 +23,11 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const JobScreen(),
+    const VideoPlayerWidget(
+      videoUrl: '',
+    ),
     const NotificationScreen(),
-    const ProfileScreen()
+    const JobScreen(),
   ];
 
   void _onTabTapped(int index) {
@@ -61,9 +64,9 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
             label: 'Home',
           ),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.work_outline),
+            icon: Icon(Icons.video_collection_outlined),
             activeIcon: Icon(Icons.work),
-            label: 'Jobs',
+            label: 'Video',
           ),
           BottomNavigationBarItem(
               icon: Obx(
@@ -103,9 +106,9 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
               label: 'Notifications', // Add a label for better UX
               activeIcon: const Icon(Icons.notifications)),
           const BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
+            icon: Icon(Icons.work_outline_outlined),
             activeIcon: Icon(Icons.person),
-            label: 'Profile',
+            label: 'Jobs',
           ),
           // const BottomNavigationBarItem(
           //   icon: Icon(Icons.restaurant_menu),

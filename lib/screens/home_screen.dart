@@ -1,15 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:findjobs/controllers/basicController.dart';
 import 'package:findjobs/controllers/homeController.dart';
-import 'package:findjobs/screens/chat.dart';
-import 'package:findjobs/screens/chat_login.dart';
+import 'package:findjobs/controllers/signupController.dart';
+import 'package:findjobs/job_notification.dart';
 import 'package:findjobs/screens/help_support_screen.dart';
 import 'package:findjobs/screens/messeges_screen.dart';
+import 'package:findjobs/screens/profile_screen.dart';
 import 'package:findjobs/screens/saved_jobs_screen.dart';
 import 'package:findjobs/screens/settings_screen.dart';
 import 'package:findjobs/screens/upload_screen.dart';
+import 'package:findjobs/screens/upload_video-screen.dart';
 import 'package:findjobs/screens/userinput_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,14 +25,104 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final homeController = Get.put(HomeController());
+  final signupController = Get.put(SignupController());
+  final basicDetailsController = Get.put(BasicDetailsController());
+  final TextEditingController _commentController = TextEditingController();
+  final FocusNode _commentFocusNode = FocusNode();
+  String? _activeCommentPostId;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    _commentFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _showComments(String postId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          builder: (_, controller) {
+            return Column(
+              children: [
+                const SizedBox(height: 10),
+                const Text(
+                  'Comments',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const Divider(),
+                Expanded(
+                  child: StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('posts')
+                        .doc(postId)
+                        .collection('comments')
+                        .orderBy('timestamp', descending: true)
+                        .snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      }
+
+                      final comments = snapshot.data?.docs ?? [];
+
+                      if (comments.isEmpty) {
+                        return const Center(child: Text('No comments yet.'));
+                      }
+
+                      return ListView.builder(
+                        controller: controller,
+                        itemCount: comments.length,
+                        itemBuilder: (context, index) {
+                          final commentData =
+                              comments[index].data() as Map<String, dynamic>;
+                          final String userName =
+                              commentData['userName'] ?? 'Anonymous';
+                          final String comment = commentData['comment'] ?? '';
+                          final Timestamp? timestamp = commentData['timestamp'];
+                          final String timeAgo = timestamp != null
+                              ? timeago.format(timestamp.toDate())
+                              : 'Unknown time';
+
+                          return ListTile(
+                            title: Text(userName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            subtitle: Text(comment),
+                            trailing: Text(
+                              timeAgo,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
     return WillPopScope(
       onWillPop: () async {
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Colors.white,
         appBar: AppBar(
           leading: Builder(
             builder: (context) => Padding(
@@ -38,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 child: CircleAvatar(
                   radius: 20,
-                  backgroundColor: Colors.grey[200],
+                  backgroundColor: Colors.grey.shade200,
                   child: Builder(
                     builder: (context) {
                       return Icon(Icons.person_outline,
@@ -88,24 +183,27 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         drawer: Drawer(
+          backgroundColor: Colors.white,
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              const UserAccountsDrawerHeader(
-                decoration: BoxDecoration(),
-                accountName: Text(
-                  'Gul Ansarii',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black),
-                ),
-                accountEmail: Text(
-                  'johndoe@example.com',
-                  style: TextStyle(fontSize: 14, color: Colors.black),
-                ),
-                currentAccountPicture: CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/find.jpg'),
+              Obx(
+                () => UserAccountsDrawerHeader(
+                  decoration: const BoxDecoration(),
+                  accountName: Text(
+                    basicDetailsController.name.value,
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black),
+                  ),
+                  accountEmail: Text(
+                    basicDetailsController.email.value,
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                  ),
+                  currentAccountPicture: const CircleAvatar(
+                    backgroundImage: AssetImage('assets/images/find.jpg'),
+                  ),
                 ),
               ),
               ListTile(
@@ -134,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: const Icon(Icons.person_outline),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.pushNamed(context, '/profile');
+                  Get.to(const ProfileScreen());
                 },
               ),
               ListTile(
@@ -163,9 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: const Icon(Icons.logout_outlined),
                 title: const Text('Logout'),
                 onTap: () {
-                  // Add logout logic here
-                  // For example:
-                  // AuthService.logout();
+                  _showLogoutlDialog();
                   Navigator.pushReplacementNamed(context, '/login');
                 },
               ),
@@ -212,12 +308,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Featured Jobs',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        GestureDetector(
+                          onTap: () {
+                            Get.to(const JobFire());
+                          },
+                          child: Text(
+                            'Featured Jobs',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
                         ),
                         TextButton(
                           onPressed: () {
@@ -228,30 +331,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildFeaturedJobCard(
-                      companyLogo: 'G',
-                      companyName: 'Google',
-                      jobTitle: 'Senior Flutter Developer',
-                      location: 'New Delhi',
-                      salary: '\$120k - \$180k/year',
-                      tags: ['Remote', 'Full Time'],
-                    ),
-                    const SizedBox(height: 16),
-                    _buildFeaturedJobCard(
-                      companyLogo: 'M',
-                      companyName: 'Microsoft',
-                      jobTitle: 'Software Engineer',
-                      location: 'Noida',
-                      salary: '\$110k - \$170k/year',
-                      tags: ['On-site', 'Full Time'],
-                    ),
                   ],
                 ),
               ),
 
               // Recommended Jobs Section
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -262,28 +348,135 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                     ),
                     const SizedBox(height: 16),
-                    _buildRecommendedJobCard(
-                      companyName: 'Apple',
-                      jobTitle: 'iOS Developer',
-                      location: 'Banglore',
-                      postedTime: '2 hours ago',
-                      salary: '\$100k - \$150k/year',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildRecommendedJobCard(
-                      companyName: 'Amazon',
-                      jobTitle: 'Full Stack Developer',
-                      location: 'New York, NY',
-                      postedTime: '5 hours ago',
-                      salary: '\$90k - \$140k/year',
-                    ),
-                    const SizedBox(height: 12),
-                    _buildRecommendedJobCard(
-                      companyName: 'Meta',
-                      jobTitle: 'React Native Developer',
-                      location: 'Remote',
-                      postedTime: '1 day ago',
-                      salary: '\$95k - \$145k/year',
+                    StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('posts')
+                          .snapshots(),
+                      builder:
+                          (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                              child: Text('Error: ${snapshot.error}'));
+                        }
+
+                        final posts = snapshot.data?.docs ?? [];
+
+                        if (posts.isEmpty) {
+                          return const Center(
+                              child: Text('No posts available.'));
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap:
+                              true, // Ensures the ListView adapts to its content
+                          physics:
+                              const NeverScrollableScrollPhysics(), // Prevents scrolling conflicts
+                          itemCount: posts.length,
+                          itemBuilder: (context, index) {
+                            final post = posts[index];
+                            return Card(
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Job Title or Post Content
+                                    Text(
+                                      post['jobTitle'] ?? 'No title available',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+
+                                    // Media URL (Image/Video)
+                                    post['mediaUrl'] != null
+                                        ? Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Image.network(
+                                                post['mediaUrl'],
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox.shrink(),
+
+                                    const SizedBox(height: 12),
+
+                                    // Post Action Buttons (Like, Comment, Share)
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.thumb_up_alt_outlined,
+                                              color: Colors.grey[700],
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'Like',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.comment_outlined,
+                                              color: Colors.grey[700],
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'Comment',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.share_outlined,
+                                              color: Colors.grey[700],
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'Share',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -515,4 +708,27 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+_showLogoutlDialog() {
+  Get.dialog(
+    AlertDialog(
+      title: const Text('Logout'),
+      content: const Text('Are you sure you want to log out?'),
+      actions: [
+        TextButton(
+          onPressed: () => Get.back(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            SignupController().logout();
+            Get.back();
+          },
+          style: ElevatedButton.styleFrom(),
+          child: const Text('Logout'),
+        ),
+      ],
+    ),
+  );
 }

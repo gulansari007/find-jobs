@@ -67,3 +67,27 @@ class ProfileController extends GetxController {
     });
   }
 }
+
+
+
+//  RxString email = ''.obs;
+//   RxString username = ''.obs;
+//   RxString profileImageUrl = ''.obs;
+
+//   @override
+//   void onInit() {
+//     super.onInit();
+//     loadUserData();
+//   }
+
+//   Future<void> loadUserData() async {
+//     final user = FirebaseAuth.instance.currentUser;
+
+//     if (user != null) {
+//       email.value = user.email ?? 'No Email Found';
+//       username.value = user.displayName ?? 'No Username Found';
+//       profileImageUrl.value = user.photoURL ??
+//           'https://via.placeholder.com/150'; // Default if no profile image
+//     }
+//     isLoading.value = false;
+//   }

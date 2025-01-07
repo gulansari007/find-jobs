@@ -21,8 +21,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: Colors.white,
           title: const Text('Notifications'),
           actions: [
             IconButton(
@@ -200,7 +201,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             onPressed: () => Get.back(),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          TextButton(
             onPressed: () {
               // Clear all notifications
               notificationController.notifications.clear();

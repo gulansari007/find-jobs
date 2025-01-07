@@ -1,6 +1,7 @@
 import 'package:findjobs/screens/job_role_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SkillsController extends GetxController {
   // Observable list of selected skills
@@ -11,6 +12,12 @@ class SkillsController extends GetxController {
 
   // Observable list of custom skills
   final RxList<String> customSkills = <String>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadSkills(); // Load saved skills when the controller initializes
+  }
 
   @override
   void onClose() {
@@ -29,6 +36,7 @@ class SkillsController extends GetxController {
         customSkills.add(skill);
         selectedSkills.add(skill);
         customSkillController.clear();
+        saveSkills(); // Save the skills after adding
       } else {
         // Show a snackbar if skill already exists
         Get.snackbar(
@@ -92,26 +100,49 @@ class SkillsController extends GetxController {
     } else {
       selectedSkills.add(skill);
     }
+    saveSkills(); // Save the skills after toggling
   }
 
   // Method to clear all selected skills
   void clearSelectedSkills() {
     selectedSkills.clear();
+    saveSkills(); // Save the empty set after clearing
   }
 
   // Method to proceed with selected skills
   void continueWithSkills() {
     if (selectedSkills.isNotEmpty) {
-      // TODO: Navigate to next screen or save skills
-
-      // Get.snackbar(
-      //   'Skills Selected',
-      //   '${selectedSkills.length} skills have been chosen',
-      //   snackPosition: SnackPosition.BOTTOM,
-      //   backgroundColor: Colors.green.withOpacity(0.8),
-      //   colorText: Colors.white,
-      // );
+      saveSkills(); // Save the selected skills before proceeding
       Get.to(const JobRoleScreen());
+    }
+  }
+
+  // Method to save skills to SharedPreferences
+  void saveSkills() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save selected skills (set) as a list
+    await prefs.setStringList('selectedSkills', selectedSkills.toList());
+
+    // Save custom skills (list) as a list
+    await prefs.setStringList('customSkills', customSkills.toList());
+    Get.snackbar("save", "skills");
+  }
+
+  // Method to load skills from SharedPreferences
+  void loadSkills() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Load selected skills (set)
+    List<String>? savedSelectedSkills = prefs.getStringList('selectedSkills');
+    if (savedSelectedSkills != null) {
+      selectedSkills.addAll(savedSelectedSkills);
+    }
+
+    // Load custom skills
+    List<String>? savedCustomSkills = prefs.getStringList('customSkills');
+    if (savedCustomSkills != null) {
+      customSkills.addAll(savedCustomSkills);
     }
   }
 }

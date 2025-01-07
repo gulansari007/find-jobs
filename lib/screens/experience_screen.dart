@@ -14,13 +14,14 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Get.back(),
         ),
+        elevation: 0,
         title: const Text(
           'Work Experience',
         ),
@@ -134,35 +135,35 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                     hint: 'Enter company name',
                     icon: Icons.business,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 19),
                   _buildTextField(
                     controller: controller.positionController,
                     label: 'Position',
                     hint: 'Your job title',
                     icon: Icons.work,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 19),
                   _buildTextField(
                     controller: controller.jobRoleController,
                     label: 'Job Role',
                     hint: 'Describe your job role',
                     icon: Icons.account_circle,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 19),
                   _buildTextField(
                     controller: controller.yearsOfExperienceController,
                     label: 'Years of Experience',
                     hint: 'How many years of experience?',
                     icon: Icons.access_time,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 19),
                   _buildTextField(
                     controller: controller.salaryController,
                     label: 'Salary',
                     hint: 'Enter your salary (optional)',
                     icon: Icons.monetization_on,
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 19),
                   Row(
                     children: [
                       Expanded(

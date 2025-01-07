@@ -164,7 +164,7 @@ class _SkillsScreenState extends State<SkillsScreen> {
                     label: Text(
                       skill,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black87,
+                        color: isSelected ? Colors.white : Colors.grey.shade700,
                       ),
                     ),
                     selected: isSelected,

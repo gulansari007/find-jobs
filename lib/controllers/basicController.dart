@@ -1,6 +1,7 @@
 import 'package:findjobs/screens/location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BasicDetailsController extends GetxController {
   // Reactive variables
@@ -13,7 +14,7 @@ class BasicDetailsController extends GetxController {
   // List of genders
   final genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
-  // Validation methods (same as previous implementation)
+  // Validation methods
   String? validateName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your full name';
@@ -92,31 +93,8 @@ class BasicDetailsController extends GetxController {
         validatePhone(phone.value) == null &&
         validateDateOfBirth(dateOfBirth.value) == null &&
         validateGender(gender.value) == null) {
-      // Success animation or navigation
+      saveDataToSharedPreferences(); // Save to SharedPreferences after validation
       Get.to(const LocationScreen());
-      // Get.dialog(
-      //   AlertDialog(
-      //     title: const Text('Profile Created'),
-      //     content: const Column(
-      //       mainAxisSize: MainAxisSize.min,
-      //       children: [
-      //         Icon(Icons.check_circle, color: Colors.green, size: 100),
-      //         SizedBox(height: 16),
-      //         Text('Your profile has been successfully created!'),
-      //       ],
-      //     ),
-      //     actions: [
-      //       TextButton(
-      //         onPressed: () {
-      //           Get.back(); // Close dialog
-      //           // TODO: Navigate to next screen or perform next action
-      //         },
-      //         child: const Text('Continue'),
-      //       ),
-      //     ],
-      //   ),
-      //   barrierDismissible: false,
-      // );
     } else {
       Get.snackbar(
         'Error',
@@ -132,13 +110,51 @@ class BasicDetailsController extends GetxController {
 
   var isFormValid = false.obs;
 
-  // Add validation methods
-
   void checkFormValidity() {
     isFormValid.value = validateName(name.value) == null &&
         validateEmail(email.value) == null &&
         validatePhone(phone.value) == null &&
         validateDateOfBirth(dateOfBirth.value) == null &&
         validateGender(gender.value) == null;
+  }
+
+  // Save form data to SharedPreferences
+  Future<void> saveDataToSharedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('name', name.value);
+    await prefs.setString('email', email.value);
+    await prefs.setString('phone', phone.value);
+    await prefs.setString(
+        'dateOfBirth', dateOfBirth.value?.toIso8601String() ?? '');
+    await prefs.setString('gender', gender.value ?? '');
+
+    Get.snackbar(
+      'Success',
+      'Your details have been saved successfully',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green.shade600,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+      borderRadius: 10,
+    );
+  }
+
+  // Load data from SharedPreferences
+  Future<void> loadDataFromSharedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    name.value = prefs.getString('name') ?? '';
+    email.value = prefs.getString('email') ?? '';
+    phone.value = prefs.getString('phone') ?? '';
+    final dobString = prefs.getString('dateOfBirth');
+    dateOfBirth.value = dobString != null && dobString.isNotEmpty
+        ? DateTime.parse(dobString)
+        : null;
+    gender.value = prefs.getString('gender');
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadDataFromSharedPreferences(); // Load saved data when the controller initializes
   }
 }

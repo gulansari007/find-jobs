@@ -3,6 +3,7 @@ import 'package:findjobs/screens/bottombar_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
+import 'package:lottie/lottie.dart';
 
 class JobRoleScreen extends StatefulWidget {
   const JobRoleScreen({super.key});
@@ -38,6 +39,11 @@ class _JobRoleScreenState extends State<JobRoleScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Get.back(),
+        ),
         title: const Text('Job Role'),
       ),
       body: Stack(
@@ -207,13 +213,20 @@ class _JobRoleScreenState extends State<JobRoleScreen> {
                             Get.dialog(
                               AlertDialog(
                                 title: const Text('Profile Created'),
-                                content: const Column(
+                                content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.check_circle,
+                                    Lottie.asset(
+                                      'assets/animations/fireworks.json', // Replace with your animation file path
+                                      width: 150,
+                                      height: 16,
+
+                                      fit: BoxFit.cover,
+                                    ),
+                                    const Icon(Icons.check_circle,
                                         color: Colors.green, size: 100),
-                                    SizedBox(height: 16),
-                                    Text(
+                                    const SizedBox(height: 16),
+                                    const Text(
                                         'Your profile has been created successfully!'),
                                   ],
                                 ),

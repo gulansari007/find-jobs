@@ -1,7 +1,9 @@
 import 'package:findjobs/controllers/basicController.dart';
+import 'package:findjobs/screens/location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BasicDetailScreen extends StatefulWidget {
   const BasicDetailScreen({super.key});
@@ -13,6 +15,7 @@ class BasicDetailScreen extends StatefulWidget {
 class _BasicDetailScreenState extends State<BasicDetailScreen> {
   final basicDetailsController = Get.put(BasicDetailsController());
   final _formKey = GlobalKey<FormState>();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +66,10 @@ class _BasicDetailScreenState extends State<BasicDetailScreen> {
                               },
                               validator: basicDetailsController.validateName,
                             ),
+                            const SizedBox(
+                              height: 8,
+                            ),
                             _buildTextField(
-                              
                               label: 'Email Address',
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
@@ -73,6 +78,9 @@ class _BasicDetailScreenState extends State<BasicDetailScreen> {
                                 basicDetailsController.checkFormValidity();
                               },
                               validator: basicDetailsController.validateEmail,
+                            ),
+                            const SizedBox(
+                              height: 8,
                             ),
                             _buildTextField(
                               label: 'Phone Number',
@@ -83,6 +91,9 @@ class _BasicDetailScreenState extends State<BasicDetailScreen> {
                                 basicDetailsController.checkFormValidity();
                               },
                               validator: basicDetailsController.validatePhone,
+                            ),
+                            const SizedBox(
+                              height: 8,
                             ),
                             Obx(
                               () => _buildDateField(
@@ -98,6 +109,9 @@ class _BasicDetailScreenState extends State<BasicDetailScreen> {
                                   basicDetailsController.dateOfBirth.value,
                                 ),
                               ),
+                            ),
+                            const SizedBox(
+                              height: 8,
                             ),
                             _buildDropdownField(
                               label: 'Gender',

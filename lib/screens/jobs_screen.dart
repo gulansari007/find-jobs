@@ -20,9 +20,10 @@ class _JobScreenState extends State<JobScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: Colors.white,
           title: const Text('Jobs'),
         ),
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Colors.white,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -153,6 +154,7 @@ class _JobScreenState extends State<JobScreen> {
 
   Widget _buildJobCard(Job job) {
     return Card(
+      color: Colors.white,
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 10),
       shape: RoundedRectangleBorder(
