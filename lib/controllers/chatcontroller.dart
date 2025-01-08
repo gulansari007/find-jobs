@@ -1,63 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:findjobs/screens/chat.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ChatController extends GetxController {
-  FirebaseAuth auth = FirebaseAuth.instance;
-  Rxn<User> firebaseUser = Rxn<User>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Reactive variables
+  var messages = <Map<String, dynamic>>[].obs;
+  var messageText = ''.obs;
   
 
   @override
   void onInit() {
-    firebaseUser.bindStream(auth.authStateChanges());
     super.onInit();
+    fetchMessages();
   }
 
-  void login(String email, String password) async {
-    try {
-      await auth.signInWithEmailAndPassword(email: email, password: password);
-      var chatId;
-      if (chatId.isNotEmpty) {
-        Get.to(() => ChatScreen(chatId: chatId)); // Pass a valid chatId.
-      } else {
-        Get.snackbar('Error', 'Chat ID is empty, cannot open chat.');
-      }
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
-    }
-  }
-
-  void logout() async {
-    await auth.signOut();
-    Get.off(() => ());
-  }
-
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  var messages = <DocumentSnapshot>[].obs;
-
-  Stream<QuerySnapshot> getChatMessages(String chatId) {
-    return firestore
-        .collection('chats')
-        .doc(chatId)
+  void fetchMessages() {
+    _firestore
         .collection('messages')
         .orderBy('timestamp', descending: true)
-        .snapshots();
+        .snapshots()
+        .listen((snapshot) {
+      messages.value = snapshot.docs
+          .map((doc) => {
+                'text': doc['text'],
+                'sender': doc['sender'],
+                'timestamp': doc['timestamp']
+              })
+          .toList();
+    });
   }
 
-  void sendMessage(String chatId, String senderId, String text) {
-    final message = {
-      'text': text,
-      'senderId': senderId,
-      'timestamp': FieldValue.serverTimestamp(),
-      'isRead': false,
-    };
-    firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .add(message);
+  void sendMessage(String sender) {
+    if (messageText.value.trim().isNotEmpty) {
+      _firestore.collection('messages').add({
+        'text': messageText.value,
+        'sender': sender,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      messageText.value = '';
+    }
   }
-  
 }

@@ -24,7 +24,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final locationController = Get.put(LocationController());
   final skillsController = Get.put(SkillsController());
   final jobRoleController = Get.put(JobRoleController());
-  // Initial text
   String _text =
       'Passionate software engineer with 5+ years of experience in mobile development. Specialized in Flutter and native Android development';
   late TextEditingController _controller;
@@ -58,29 +57,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _profileImage = File(pickedFile.path);
       });
     }
-    Get.back(); // Close the bottom sheet
+    Get.back();
   }
 
   void _showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () => _pickImage(ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () => _pickImage(ImageSource.gallery),
-            ),
-          ],
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Wrap(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  'Select Image Source',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.camera_alt, color: Colors.blue),
+                ),
+                title: const Text('Camera'),
+                onTap: () => _pickImage(ImageSource.camera),
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.photo_library, color: Colors.blue),
+                ),
+                title: const Text('Gallery'),
+                onTap: () => _pickImage(ImageSource.gallery),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -89,7 +116,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       body: Obx(() {
         if (profileController.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -101,8 +128,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           slivers: [
             SliverAppBar(
               backgroundColor: Colors.white,
+              elevation: 0,
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.black,
+                ),
                 onPressed: () => Get.back(),
               ),
               expandedHeight: Get.height * .24,
@@ -112,47 +143,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 title: Text(
                   basicDetailsController.name.value,
                   style: const TextStyle(
-                    color: Colors.grey,
+                    color: Colors.black87,
                     fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-
                 background: Container(
-                  decoration: const BoxDecoration(),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 42),
-                      GestureDetector(
-                        onTap: _showImageSourceSheet,
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: _profileImage != null
-                              ? FileImage(_profileImage!)
-                              : NetworkImage(profile.avatarUrl)
-                                  as ImageProvider,
-                          child: _profileImage == null
-                              ? const Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.grey,
-                                  size: 30,
-                                )
-                              : null,
-                        ),
+                      Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: _showImageSourceSheet,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 50,
+                                backgroundColor: Colors.white,
+                                backgroundImage: _profileImage != null
+                                    ? FileImage(_profileImage!)
+                                    : NetworkImage(profile.avatarUrl)
+                                        as ImageProvider,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            right: 0,
+                            bottom: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: Get.height * .07),
-                      Text(
-                        jobRoleController.selectedJobRoles.toString(),
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16,
+                      SizedBox(height: Get.height * .04),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border:
+                              Border.all(color: Colors.blue.withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          jobRoleController.selectedJobRoles.toString(),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                centerTitle: true, // Center the title in the app bar
+                centerTitle: true,
               ),
             ),
             SliverToBoxAdapter(
@@ -161,176 +238,199 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      child: Row(
-                        children: [
-                          const Spacer(),
-                          IconButton(
-                              onPressed: () {}, icon: const Icon(Icons.edit))
-                        ],
-                      ),
-                    ),
                     Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           children: [
                             _buildInfoRow(Icons.location_on,
                                 locationController.selectedCity.value),
-                            const Divider(),
+                            const Divider(height: 24),
                             _buildInfoRow(Icons.email,
                                 basicDetailsController.email.value),
-                            const Divider(),
+                            const Divider(height: 24),
                             _buildInfoRow(Icons.phone,
                                 basicDetailsController.phone.value),
-                            const Divider(),
+                            const Divider(height: 24),
                             _buildInfoRow(Icons.link, profile.linkedin),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Bio
-                    Container(
-                      child: Row(
-                        children: [
-                          const Text(
-                            'About',
-                            style: TextStyle(
-                                fontSize: 21, fontWeight: FontWeight.bold),
-                            softWrap:
-                                true, // Allows the text to wrap to multiple lines
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              // Show dialog to edit text
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Edit About'),
-                                    content: TextField(
-                                      controller: _controller,
-                                      maxLines: 4,
-                                      decoration: const InputDecoration(
-                                        hintText: 'Enter your text here...',
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          // Save the text and close dialog
-                                          _editText();
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('Save'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          // Close dialog without saving
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('Cancel'),
-                                      ),
-                                    ],
-                                  );
+                    const SizedBox(height: 24),
+                    _buildSection(
+                      'About',
+                      hasEdit: true,
+                      onEdit: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: const Text('Edit About'),
+                            content: TextField(
+                              controller: _controller,
+                              maxLines: 4,
+                              decoration: InputDecoration(
+                                hintText: 'Enter your text here...',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  _editText();
+                                  Navigator.pop(context);
                                 },
-                              );
-                            },
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text('Save'),
+                              ),
+                            ],
                           ),
-                        ],
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border:
+                              Border.all(color: Colors.grey.withOpacity(0.2)),
+                        ),
+                        child: Text(
+                          _text,
+                          style: const TextStyle(fontSize: 16, height: 1.5),
+                        ),
                       ),
                     ),
-                    Container(
-                      child: const Text(
-                        'Passionate software engineer with 5+ years of experience in mobile development. Specialized in Flutter and native Android development',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 18,
-                    ),
-
-                    // Skills
+                    const SizedBox(height: 24),
                     _buildSection(
                       'Skills',
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: skillsController.selectedSkills.map((skill) {
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                              horizontal: 16,
+                              vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.blue[100],
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blue.withOpacity(0.2),
+                                  Colors.blue.withOpacity(0.1),
+                                ],
+                              ),
                               borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                  color: Colors.blue.withOpacity(0.3)),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(skill
-                                    .toString()), // Display the skill name here
-                                const SizedBox(width: 4),
-                                // Uncomment if skill.level is available and needed
-                                // Row(
-                                //   mainAxisSize: MainAxisSize.min,
-                                //   children: List.generate(
-                                //     5,
-                                //     (index) => Icon(
-                                //       Icons.circle,
-                                //       size: 8,
-                                //       color: index < skill.level
-                                //           ? Colors.blue[800]
-                                //           : Colors.blue[200],
-                                //     ),
-                                //   ),
-                                // ),
-                              ],
+                            child: Text(
+                              skill.toString(),
+                              style: const TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           );
                         }).toList(),
                       ),
                     ),
-
-                    // Experience
+                    const SizedBox(height: 24),
                     _buildSection(
                       'Experience',
                       child: Column(
                         children: profile.experience.map((exp) {
                           return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    exp.company,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.business,
+                                          color: Colors.blue,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              exp.company,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              exp.position,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      exp.duration,
+                                      style: TextStyle(
+                                        color: Colors.grey[800],
+                                        fontSize: 14,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 12),
                                   Text(
-                                    exp.position,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.blue,
-                                    ),
+                                    exp.description,
+                                    style: const TextStyle(height: 1.5),
                                   ),
-                                  Text(
-                                    exp.duration,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(exp.description),
                                 ],
                               ),
                             ),
@@ -338,38 +438,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }).toList(),
                       ),
                     ),
-
-                    // Education
+                    const SizedBox(height: 24),
                     _buildSection(
                       'Education',
                       child: Column(
                         children: profile.education.map((edu) {
                           return Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    edu.school,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(
+                                          Icons.school,
+                                          color: Colors.blue,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              ' edu.institution',
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              edu.degree,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '',
+                                      // "${edu.startYear} - ${edu.endYear}",
+                                      style: TextStyle(
+                                        color: Colors.grey[800],
+                                        fontSize: 14,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    edu.degree,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                  Text(
-                                    edu.duration,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                    ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    'edu.description,',
+                                    style: TextStyle(height: 1.5),
                                   ),
                                 ],
                               ),
@@ -378,6 +525,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         }).toList(),
                       ),
                     ),
+                    const SizedBox(height: 32),
                   ],
                 ),
               ),
@@ -385,53 +533,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         );
       }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to edit profile
-          Get.snackbar(
-            'Edit Profile',
-            'Edit profile functionality coming soon!',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        },
-        child: const Icon(Icons.edit),
-      ),
     );
   }
 
-  Widget _buildSection(String title, {required Widget child}) {
+  Widget _buildSection(String title,
+      {Widget? child, bool hasEdit = false, VoidCallback? onEdit}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (hasEdit)
+              IconButton(
+                onPressed: onEdit,
+                icon: const Icon(Icons.edit, color: Colors.blue),
+              ),
+          ],
         ),
         const SizedBox(height: 16),
-        child,
-        const SizedBox(height: 24),
+        if (child != null) child,
       ],
     );
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.blue[800]),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 16),
-            ),
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
           ),
-        ],
-      ),
+          child: Icon(icon, color: Colors.blue, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ),
+      ],
     );
   }
 }

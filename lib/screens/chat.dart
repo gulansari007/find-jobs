@@ -16,131 +16,77 @@ class _ChatScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chats')),
-      body: ListView.builder(
-        itemCount: chatIds.length,
-        itemBuilder: (context, index) {
-          final chatId = chatIds[index];
-          return ListTile(
-            title: Text('Chat $index'),
-            subtitle: Text(chatId.isNotEmpty ? chatId : 'Invalid ID'),
-            onTap: () {
-              if (chatId.isNotEmpty) {
-                Get.to(() => ChatScreen(chatId: chatId));
-              } else {
-                Get.snackbar('Error', 'Chat ID is empty, cannot open chat.');
-              }
-            },
-          );
-        },
-      ),
-    );
-  }
-}
-
-class ChatScreen extends StatelessWidget {
-  final String chatId;
-
-  const ChatScreen({super.key, required this.chatId});
-
-  @override
-  Widget build(BuildContext context) {
-    if (chatId.isEmpty) {
-      // Display error UI for invalid chat ID.
-      return Scaffold(
-        appBar: AppBar(title: const Text('Invalid Chat')),
-        body: const Center(
-          child: Text('Chat ID is invalid or missing.'),
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat'),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('chats')
-            .doc(chatId)
-            .collection('messages')
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No messages yet.'));
-          }
-
-          final messages = snapshot.data!.docs;
-
-          return ListView.builder(
-            reverse: true,
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              final message = messages[index];
-              return ListTile(
-                title: Text(message['text'] ?? 'No Text'),
-                subtitle: Text(
-                  message['sender'] ?? 'Unknown Sender',
-                ),
+      appBar: AppBar(title: const Text('GetX Chat')),
+      body: Column(
+        children: [
+          Expanded(
+            child: Obx(() {
+              return ListView.builder(
+                reverse: true,
+                itemCount: chatController.messages.length,
+                itemBuilder: (context, index) {
+                  final message = chatController.messages[index];
+                  return MessageBubble(
+                    text: message['text'],
+                    sender: message['sender'],
+                  );
+                },
               );
-            },
-          );
-        },
+            }),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    onChanged: (value) =>
+                        chatController.messageText.value = value,
+                    decoration:
+                        const InputDecoration(hintText: 'Type a message...'),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: () => chatController.sendMessage(
+                      'User'), // Replace 'User' with actual user ID
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      bottomNavigationBar: MessageInput(chatId: chatId),
     );
   }
 }
 
-class MessageInput extends StatefulWidget {
-  final String chatId;
+class MessageBubble extends StatelessWidget {
+  final String text;
+  final String sender;
 
-  const MessageInput({Key? key, required this.chatId}) : super(key: key);
-
-  @override
-  _MessageInputState createState() => _MessageInputState();
-}
-
-class _MessageInputState extends State<MessageInput> {
-  final TextEditingController _controller = TextEditingController();
-
-  void _sendMessage() {
-    if (_controller.text.trim().isEmpty) return;
-
-    FirebaseFirestore.instance
-        .collection('chats')
-        .doc(widget.chatId)
-        .collection('messages')
-        .add({
-      'text': _controller.text.trim(),
-      'sender': 'User', // Replace with actual sender
-      'timestamp': FieldValue.serverTimestamp(),
-    });
-
-    _controller.clear();
-  }
+  const MessageBubble({super.key, required this.text, required this.sender});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                hintText: 'Enter a message...',
+          Text(sender,
+              style: const TextStyle(fontSize: 12.0, color: Colors.grey)),
+          Material(
+            borderRadius: BorderRadius.circular(10.0),
+            elevation: 5.0,
+            color: Colors.blueAccent,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+              child: Text(
+                text,
+                style: const TextStyle(color: Colors.white, fontSize: 16.0),
               ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: _sendMessage,
           ),
         ],
       ),

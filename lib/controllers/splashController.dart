@@ -48,7 +48,7 @@ class SplashController extends GetxController {
 
       // Navigate based on progress
       if (!isLoggedIn) {
-        Get.off(() => const OtpScreen());
+        Get.off(() => const BottomBarScreen());
       } else {
         _navigateToNextIncompleteScreen();
       }

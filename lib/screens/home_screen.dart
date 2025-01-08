@@ -3,6 +3,7 @@ import 'package:findjobs/controllers/basicController.dart';
 import 'package:findjobs/controllers/homeController.dart';
 import 'package:findjobs/controllers/signupController.dart';
 import 'package:findjobs/job_notification.dart';
+import 'package:findjobs/screens/chat.dart';
 import 'package:findjobs/screens/help_support_screen.dart';
 import 'package:findjobs/screens/messeges_screen.dart';
 import 'package:findjobs/screens/profile_screen.dart';
@@ -324,7 +325,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Get.to(const UploadScreen());
+                            Get.to(const ChatListScreen(
+                              chatId: '',
+                            ));
                           },
                           child: const Text('See All'),
                         ),
