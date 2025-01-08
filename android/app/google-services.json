@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "716530621601",
-    "project_id": "find-jobs-6651e",
-    "storage_bucket": "find-jobs-6651e.firebasestorage.app"
+    "project_number": "216927959980",
+    "project_id": "opps-85fe4",
+    "storage_bucket": "opps-85fe4.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:716530621601:android:9481fd3f75265d981be4e0",
+        "mobilesdk_app_id": "1:216927959980:android:bc74a4036b2ba059ce1809",
         "android_client_info": {
           "package_name": "com.example.findjobs"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCLJnQrcxOI0s0BG0Vq_FtaVKgWtGoMqcA"
+          "current_key": "AIzaSyDEP80l3QszoKmNdNYWkPr-fC7m11Ev9wc"
         }
       ],
       "services": {

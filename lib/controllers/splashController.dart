@@ -6,6 +6,7 @@ import 'package:findjobs/screens/experience_screen.dart';
 import 'package:findjobs/screens/job_role_screen.dart';
 import 'package:findjobs/screens/location_screen.dart';
 import 'package:findjobs/screens/otp_screen.dart';
+import 'package:findjobs/screens/signup_screen.dart';
 import 'package:findjobs/screens/skills_screen.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';

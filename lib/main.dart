@@ -19,16 +19,11 @@ void main() async {
   await Firebase.initializeApp();
   await Hive.initFlutter();
   await Hive.openBox<BasicDetailsModel>('basicDetails');
-  //  Hive.registerAdapter(BasicDetailsModelAdapter());
-
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.subscribeToTopic('sample');
-  // final fcmToken = await FirebaseMessaging.instance.getToken();
-  //   print("FCM Token: $fcmToken");
-
+  
   Get.put(NotificationController());
   await GetStorage.init();
-
   runApp(const MyApp());
 }
 

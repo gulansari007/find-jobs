@@ -41,48 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDdUJ0u_mE7XQ20Ylyfbf-rNj9KL8IheFY',
-    appId: '1:716530621601:web:eb34ff27d20e26d21be4e0',
-    messagingSenderId: '716530621601',
-    projectId: 'find-jobs-6651e',
-    authDomain: 'find-jobs-6651e.firebaseapp.com',
-    storageBucket: 'find-jobs-6651e.firebasestorage.app',
-    measurementId: 'G-GNW65B2ESL',
+    apiKey: 'AIzaSyAVzePnOttcS_YatEJ-CMVeqWzEN7vwFyk',
+    appId: '1:216927959980:web:81c6e1d514a4787bce1809',
+    messagingSenderId: '216927959980',
+    projectId: 'opps-85fe4',
+    authDomain: 'opps-85fe4.firebaseapp.com',
+    storageBucket: 'opps-85fe4.firebasestorage.app',
+    measurementId: 'G-0YVTBV7R5Y',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCLJnQrcxOI0s0BG0Vq_FtaVKgWtGoMqcA',
-    appId: '1:716530621601:android:9481fd3f75265d981be4e0',
-    messagingSenderId: '716530621601',
-    projectId: 'find-jobs-6651e',
-    storageBucket: 'find-jobs-6651e.firebasestorage.app',
+    apiKey: 'AIzaSyDEP80l3QszoKmNdNYWkPr-fC7m11Ev9wc',
+    appId: '1:216927959980:android:bc74a4036b2ba059ce1809',
+    messagingSenderId: '216927959980',
+    projectId: 'opps-85fe4',
+    storageBucket: 'opps-85fe4.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAMuNOB1TA1VpErym0_b5efp98EznOQPDs',
-    appId: '1:716530621601:ios:665a5d3f03ca4d2b1be4e0',
-    messagingSenderId: '716530621601',
-    projectId: 'find-jobs-6651e',
-    storageBucket: 'find-jobs-6651e.firebasestorage.app',
+    apiKey: 'AIzaSyCGc9Q_jKtpOwCYCaexwQmG_62hcwkTVlA',
+    appId: '1:216927959980:ios:af5f568681e262e2ce1809',
+    messagingSenderId: '216927959980',
+    projectId: 'opps-85fe4',
+    storageBucket: 'opps-85fe4.firebasestorage.app',
     iosBundleId: 'com.example.findjobs',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAMuNOB1TA1VpErym0_b5efp98EznOQPDs',
-    appId: '1:716530621601:ios:665a5d3f03ca4d2b1be4e0',
-    messagingSenderId: '716530621601',
-    projectId: 'find-jobs-6651e',
-    storageBucket: 'find-jobs-6651e.firebasestorage.app',
+    apiKey: 'AIzaSyCGc9Q_jKtpOwCYCaexwQmG_62hcwkTVlA',
+    appId: '1:216927959980:ios:af5f568681e262e2ce1809',
+    messagingSenderId: '216927959980',
+    projectId: 'opps-85fe4',
+    storageBucket: 'opps-85fe4.firebasestorage.app',
     iosBundleId: 'com.example.findjobs',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDdUJ0u_mE7XQ20Ylyfbf-rNj9KL8IheFY',
-    appId: '1:716530621601:web:2197a9be06668b9b1be4e0',
-    messagingSenderId: '716530621601',
-    projectId: 'find-jobs-6651e',
-    authDomain: 'find-jobs-6651e.firebaseapp.com',
-    storageBucket: 'find-jobs-6651e.firebasestorage.app',
-    measurementId: 'G-84ZGV5V66Z',
+    apiKey: 'AIzaSyAVzePnOttcS_YatEJ-CMVeqWzEN7vwFyk',
+    appId: '1:216927959980:web:443c8a878767e613ce1809',
+    messagingSenderId: '216927959980',
+    projectId: 'opps-85fe4',
+    authDomain: 'opps-85fe4.firebaseapp.com',
+    storageBucket: 'opps-85fe4.firebasestorage.app',
+    measurementId: 'G-PNKSTBT5ZR',
   );
 }
