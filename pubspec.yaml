@@ -76,7 +76,7 @@ dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icon/google.png" # Path to your app icon  
+  image_path: "assets/icon/app_icon.png"
   
 
 dev_dependencies:
